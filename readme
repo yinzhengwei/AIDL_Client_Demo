@@ -1,0 +1,29 @@
+
+
+aidl是基于binder的技术方案解决了跨进程通信，binder技术是Android相较于Socket而言比较高效的技术方案，
+简单来说底层是通过共享binder文件的数据来实现数据的交互，对于文件的操作是由ServiceManager管理。
+
+内部借助ServiceManager实现进程守护，ServiceManager实现了framework中binder设备文件的打开、绑定
+Binder、启动无穷循环的监听等待client的请求这三步操作。通常我们通过ServiceManager远程接口拿到了一
+个Binder的引用，然后得到一个Binder的引用对象，client直接通过等到的binder对象调用其transact方法，
+也就是IPCThreadState的transact函数实现Binder驱动程序的交互，这个IPCThread有一个ProcessState
+类型的成员变量mProcess，而mProcess有一个成员变量mDriverFD，它是设备文件/dev/binder的打开文件描
+述符，相当于IPCThreadState也拥有了/dev/binder/的文件描述符
+
+通常Android系统的四大组件、AMS、PMS、WMS都是通过binder机制实现的通信
+
+
+关于Client端的定义如下：
+
+
+1、将Service端的aidl目录文件复制到main目录下，然后rebuild一下，生成对应的IMyAidlInterface接口类
+
+2、如果接口使用到了bean，则要在java目录下创建和Service目录一样的bean
+
+3、在Activity中通过bindService启动Service端的自定义Service类，然后在实现的ServiceConnection
+    中通过IMyAidlInterface.Stub.asInterface(service)接受Service端返回的IBinder对象，得到
+    IMyAidlInterface接口
+
+4、在需要通信的地方通过得到的iMyAidlInterface接口进行数据传输即可
+
+5、只要Service端安装了，不管有没有启动，都能实现数据交互

@@ -1,0 +1,15 @@
+
+
+aidl是基于binder的技术方案解决了跨进程通信，关于Service端的定义如下：
+
+
+1、在main目录下创建aidl目录，然后创建aidi格式的通信协议IMyAidlInterface,
+    如果接口中使用了src中的bean，最需要手动倒包
+
+2、rebuild一下项目，则会在app/build/generated/source/aidl/debug/com.xxx.xx/看到生成的Java文件
+
+3、自定义Service，实现onBind()方法，在onBind()方法中通过IMyAidlInterface.Stub()创建IBinder对象，
+    ，然后在回调方法中操作返回给客户端的数据
+
+4、将该Service在manifest中注册，最后在MainActivity中启动该Service类即可
+
